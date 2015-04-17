@@ -1,10 +1,6 @@
 ﻿using Autofac;
 using Northwind;
 using Northwind.DependencyResolver;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 
 namespace NorthwindService
 {
@@ -16,7 +12,7 @@ namespace NorthwindService
 
             // register types
             builder.RegisterModule<DataLayerResolver>();
-            builder.RegisterType<Service1>().AsSelf();
+            builder.RegisterModule<NorthwindLibraryResolver>();
             builder.RegisterType<OrderService>().AsSelf();
             // build container
             return builder.Build();

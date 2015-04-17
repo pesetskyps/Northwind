@@ -1,39 +1,38 @@
 ﻿using NorthwindInterfaces.Models;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Northwind.Classes
 {
     public interface IOrderEnricher<T>
     {
-        IEnumerable<T> Enrich(IEnumerable<T> entity);
+        List<T> Enrich(IEnumerable<T> entity);
+        T Enrich(T entity);
     }
     public class OrderEnricher<T> : IOrderEnricher<T> where T: Order
     {
-        public IEnumerable<T> Enrich(IEnumerable<T> orders)
+        public List<T> Enrich(IEnumerable<T> orders)
         {
-            foreach (var order in orders)
+            List<T> enrichedOrders = new List<T>();
+            foreach (var order in orders.ToList())
             {
                 if (order.OrderDate == null)
-                {
                     order.OrderState = OrderState.New;
-                }
                 else
-                {
-                    if (order.ShippedDate == null)
-                    {
-                        order.OrderState = OrderState.InWork;
-                    }
-                    else
-                    {
-                        order.OrderState = OrderState.Shipped;
-                    }
-                }
+                    order.OrderState = order.ShippedDate == null ? OrderState.InWork : OrderState.Shipped;
+                enrichedOrders.Add(order);
             }
-            return orders;
+            return enrichedOrders;
+        }
+
+        public T Enrich(T order)
+        {
+                if (order.OrderDate == null)
+                    order.OrderState = OrderState.New;
+                else
+                    order.OrderState = order.ShippedDate == null ? OrderState.InWork : OrderState.Shipped;
+            return order;
         }
     }
 }

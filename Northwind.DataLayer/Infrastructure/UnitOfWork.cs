@@ -1,24 +1,20 @@
 ﻿using Northwind.DataLayer;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace NorthWind.DataLayer.Infrastructure
 {
     public class UnitOfWork : IUnitOfWork
     {
-        private readonly IDatabaseFactory databaseFactory;
-        private NorthwindData dataContext;
+        private readonly IDatabaseFactory _databaseFactory;
+        private NorthwindData _dataContext;
 
         public UnitOfWork(IDatabaseFactory databaseFactory)
         {
-            this.databaseFactory = databaseFactory;
+            _databaseFactory = databaseFactory;
         }
 
         protected NorthwindData DataContext
         {
-            get { return dataContext ?? (dataContext = databaseFactory.Get()); }
+            get { return _dataContext ?? (_dataContext = _databaseFactory.Get()); }
         }
 
         public void Commit()

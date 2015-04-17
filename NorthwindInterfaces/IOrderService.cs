@@ -1,11 +1,7 @@
 ﻿using NorthwindInterfaces.Models;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.ServiceModel;
 using System.ServiceModel.Web;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NorthwindInterfaces
 {
@@ -15,5 +11,13 @@ namespace NorthwindInterfaces
         [WebGet]
         [OperationContract]
         IEnumerable<Order> GetOrders();
+        
+        [WebGet]
+        [OperationContract]
+        void AddOrder(Order order);
+
+        [WebGet]
+        [OperationContract]
+        void EditOrder(int orderId, Order newOrderDto);
     }
 }

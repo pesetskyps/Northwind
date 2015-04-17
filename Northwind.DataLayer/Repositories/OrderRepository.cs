@@ -1,7 +1,9 @@
 ﻿using NorthWind.DataLayer.Infrastructure;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -12,6 +14,12 @@ namespace Northwind.DataLayer.Repositories
         public OrderRepository(IDatabaseFactory databaseFactory)
             : base(databaseFactory)
         {
+             
         }
+
+        //public override IEnumerable<OrderEntity> GetAll()
+        //{
+        //    return DataContext.OrderEntities.Include(x => x.Order_Details.Select(l2 => l2.Product)).ToList();
+        //}
     }
 }

@@ -9,7 +9,7 @@ namespace NorthWind.DataLayer.Infrastructure
 public class DatabaseFactory : Disposable, IDatabaseFactory
 {
     private NorthwindData dataContext;
-    public NorthwindData Get()
+    public virtual NorthwindData Get()
     {
         return dataContext ?? (dataContext = new NorthwindData());
     }

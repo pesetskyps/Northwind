@@ -1,10 +1,8 @@
 ﻿using NorthwindInterfaces;
+using NorthwindInterfaces.Models;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.ServiceModel;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace NorthwindClient
 {
@@ -16,7 +14,24 @@ namespace NorthwindClient
             ChannelFactory<IOrderService> servicefactory = new ChannelFactory<IOrderService>("OrderService");
             var channel =servicefactory.CreateChannel();
             Console.ReadLine();
-            Console.WriteLine(channel.GetOrders());
+            //var orders = channel.GetOrders();
+            //if (orders != null)
+            //    foreach (var item in orders)
+            //    {
+            //        foreach (var orderDetail in item.Order_Details)
+            //        {
+            //            Console.WriteLine("Order {0} with state {1} with Product {2} with CategoryID {3}", item.OrderID, item.OrderState, orderDetail.Product.ProductName, orderDetail.Product.CategoryID);
+            //        }
+                
+            //    }
+            //Console.WriteLine("Add the order y/n?");
+            //string line = Console.ReadLine();
+            //if (line == "y")
+            //{
+            //    channel.AddOrder(new Order(){ShipCity="Minsk"});
+            //}
+            channel.EditOrder(11000,new Order(){ShipAddress = "Brest", EmployeeID = 1});
+
             Console.ReadLine();
         }
     }

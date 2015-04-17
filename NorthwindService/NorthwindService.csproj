@@ -67,7 +67,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Global.asax" />
-    <Content Include="Service1.svc" />
+    <Content Include="NorthwindTradeService.svc" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
