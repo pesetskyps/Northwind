@@ -1,6 +1,7 @@
 ﻿using NorthwindInterfaces;
 using NorthwindInterfaces.Models;
 using System;
+using System.Collections.Generic;
 using System.ServiceModel;
 
 
@@ -30,7 +31,33 @@ namespace NorthwindClient
             //{
             //    channel.AddOrder(new Order(){ShipCity="Minsk"});
             //}
-            channel.EditOrder(11000,new Order(){ShipAddress = "Brest", EmployeeID = 1});
+                     Order _complexOrderEntityShippedState = new Order()
+        {
+            OrderID = 11000,
+            CustomerID = "RATTC",
+            EmployeeID = 2,
+            OrderDate = DateTime.Parse("1998-04-06 00:00:00.000"),
+            RequiredDate = DateTime.Parse("1998-05-04 00:00:00.000"),
+            ShippedDate = DateTime.Parse("1998-04-14 00:00:00.000"),
+            ShipVia = 3,
+            Freight = Decimal.Parse("55.12"),
+            ShipName = "Rattlesnake Canyon Grocery",
+            ShipAddress = "2817 Milton Dr.",
+            ShipCity = "Albuquerque",
+            ShipRegion = "NM",
+            ShipPostalCode = "87110",
+            ShipCountry = "USA",
+            Order_Details = new List<OrderDetail>(){new OrderDetail()
+                {
+                    OrderID = 11000,ProductID = 4, Discount = Convert.ToSingle(0.25), Quantity = 55, UnitPrice = Convert.ToDecimal(22.00),
+                    Product = new Product()
+                    {
+                        ProductID = 4, ProductName = "Chef Anton's Cajun Seasoning", SupplierID = 2, CategoryID = 2, QuantityPerUnit = "48 - 6 oz jars",
+                        UnitPrice = Convert.ToDecimal(22.00), UnitsInStock = 53, UnitsOnOrder = 0, ReorderLevel = 0, Discontinued = false
+                    }
+                }}
+        };
+                     channel.EditOrder(11000, _complexOrderEntityShippedState);
 
             Console.ReadLine();
         }

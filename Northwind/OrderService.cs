@@ -24,10 +24,11 @@ namespace Northwind
         {
 
         }
-        public OrderService(IRepository<OrderEntity> repository, IDataEntityMapper mapper, IUnitOfWork unitOfWork, IRepository<OrderDetail> )
+        public OrderService(IRepository<OrderEntity> repository, IDataEntityMapper mapper, IUnitOfWork unitOfWork//, IRepository<OrderDetail>
+            )
         {
             _repository = repository;
-            _repositoryOrderDetail = _repositoryOrderDetail;
+            //_repositoryOrderDetail = _repositoryOrderDetail;
             _unitOfWork = unitOfWork;
             mapper.CreateMap();
         }
@@ -54,34 +55,39 @@ namespace Northwind
             {
                 throw new FaultException<InvalidOrderChangeException>(new InvalidOrderChangeException() { Message = "There are no changes received for the order." });
             }
-            if (newOrderDto.OrderDate != null || newOrderDto.ShippedDate != null || newOrderDto.OrderState != null)
-            {
-                throw new FaultException<InvalidOrderChangeException>(new InvalidOrderChangeException() { Message = "OrderID, OrderDate, ShippedDate, OrderState fields couldn't be changed directly" });
-            }
+
             if (orderId == null)
             {
                 throw new FaultException<InvalidOrderChangeException>(new InvalidOrderChangeException() { Message = "OrderID is empty. Please specify the order to change" });
             }
             var orderToUpdateEntity = _repository.GetById(orderId);
+
             if (orderToUpdateEntity != null)
             {
                 var enricher = new OrderEnricher<Order>();
                 var order = Mapper.Map<OrderEntity, Order>(orderToUpdateEntity);
-                var enrichedorder = enricher.Enrich(order);
-                if (enrichedorder.OrderState == OrderState.New)
+                var enrichedOrderToUpdate = enricher.Enrich(order);
+                var enrichedNewOrderDto = enricher.Enrich(newOrderDto);
+                if (enrichedNewOrderDto.OrderDate != enrichedOrderToUpdate.OrderDate ||
+                    enrichedNewOrderDto.ShippedDate != enrichedOrderToUpdate.ShippedDate ||
+                    enrichedNewOrderDto.OrderState != enrichedOrderToUpdate.OrderState)
+                {
+                    throw new FaultException<InvalidOrderChangeException>(new InvalidOrderChangeException() { Message = "OrderID, OrderDate, ShippedDate, OrderState fields couldn't be changed directly" });
+                }
+                if (enrichedOrderToUpdate.OrderState == OrderState.Shipped)
                 {
                     Mapper.Map(newOrderDto, orderToUpdateEntity);
 
                     //delete deleted orderdetail
                     //remove deleted details
                     //var tt = _repositoryOrderDetail.GetMany(orderOrm => orderOrm.OrderID != newOrderDto.OrderID))
-                    orderToUpdateEntity.Order_Details
-                    .Where(orderOrm => newOrderDto.Order_Details
-                        .All(detailDto => detailDto.OrderID != orderOrm.OrderID))
-                    .Each(deleted => orderToUpdateEntity.Order_Details.Remove(deleted));
+                    var ordersToDelte = orderToUpdateEntity.Order_Details
+                    .Where(orderOrm => !enrichedNewOrderDto.Order_Details
+                        .All(detailDto => detailDto.OrderID == orderOrm.OrderID));
+                    ordersToDelte.Each(deleted => orderToUpdateEntity.Order_Details.Remove(deleted));
 
                     //update orderdetail
-                    newOrderDto.Order_Details.Each(detailDto =>
+                    enrichedNewOrderDto.Order_Details.Each(detailDto =>
                     {
                         var detail = orderToUpdateEntity.Order_Details
                                         .FirstOrDefault(d => d.OrderID == detailDto.OrderID);
