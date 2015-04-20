@@ -19,16 +19,17 @@ namespace Northwind
     {
         readonly IRepository<OrderEntity> _repository;
         readonly IUnitOfWork _unitOfWork;
-        private readonly IRepository<OrderDetail> _repositoryOrderDetail;
+        private readonly IRepository<OrderDetailEntity> _repositoryOrderDetail;
+
         public OrderService()
         {
 
         }
-        public OrderService(IRepository<OrderEntity> repository, IDataEntityMapper mapper, IUnitOfWork unitOfWork//, IRepository<OrderDetail>
+        public OrderService(IRepository<OrderEntity> repository, IDataEntityMapper mapper, IUnitOfWork unitOfWork, IRepository<OrderDetailEntity> repositoryOrderDetail
             )
         {
             _repository = repository;
-            //_repositoryOrderDetail = _repositoryOrderDetail;
+            _repositoryOrderDetail = repositoryOrderDetail;
             _unitOfWork = unitOfWork;
             mapper.CreateMap();
         }
@@ -78,25 +79,27 @@ namespace Northwind
                 {
                     Mapper.Map(newOrderDto, orderToUpdateEntity);
 
-                    //delete deleted orderdetail
-                    //remove deleted details
-                    //var tt = _repositoryOrderDetail.GetMany(orderOrm => orderOrm.OrderID != newOrderDto.OrderID))
-                    var ordersToDelte = orderToUpdateEntity.Order_Details
-                    .Where(orderOrm => !enrichedNewOrderDto.Order_Details
-                        .All(detailDto => detailDto.OrderID == orderOrm.OrderID));
-                    ordersToDelte.Each(deleted => orderToUpdateEntity.Order_Details.Remove(deleted));
+                    //delete orderdetails that are not exist in the newOrderDto
+                    var ordersToDelete = _repositoryOrderDetail.GetMany(orderOrm => !enrichedNewOrderDto.Order_Details
+                        .Any(
+                            detailDto =>
+                                detailDto.OrderID == orderOrm.OrderID && detailDto.ProductID == orderOrm.ProductID));
+
+                    foreach (var orderDetail in ordersToDelete)
+                    {
+                        _repositoryOrderDetail.Delete(orderDetail);
+                    }
 
                     //update orderdetail
                     enrichedNewOrderDto.Order_Details.Each(detailDto =>
                     {
-                        var detail = orderToUpdateEntity.Order_Details
-                                        .FirstOrDefault(d => d.OrderID == detailDto.OrderID);
+                        var detail = _repositoryOrderDetail.Get(d => d.OrderID == detailDto.OrderID && d.ProductID == detailDto.ProductID);
                         if (detail == null)
                         {
                             detail = new OrderDetailEntity();
-                            orderToUpdateEntity.Order_Details.Add(detail);
+                            _repositoryOrderDetail.Add(detail);
                         }
-                        //map first level properties
+                        //map first level orderdetail properties
                         Mapper.Map(detailDto, detail);
 
                         //update product navigation property
@@ -104,6 +107,7 @@ namespace Northwind
                         if (dtoProduct != null)
                         {
                             var product = detail.Product ?? new ProductEntity();
+                            //Map products first level p
                             Mapper.Map(dtoProduct, product);
                         }
                     });
@@ -111,7 +115,7 @@ namespace Northwind
                 }
                 else
                 {
-                    throw new FaultException<InvalidOrderChangeException>(new InvalidOrderChangeException() { Message = "Order with the status Shipped and InProgress couldn't be changed" });
+                    throw new FaultException<InvalidOrderChangeException>(new InvalidOrderChangeException() { Message = "Order with the status Shipped or InProgress couldn't be changed" });
                 }
 
             }

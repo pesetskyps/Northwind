@@ -16,10 +16,5 @@ namespace Northwind.DataLayer.Repositories
         {
              
         }
-
-        //public override IEnumerable<OrderEntity> GetAll()
-        //{
-        //    return DataContext.OrderEntities.Include(x => x.Order_Details.Select(l2 => l2.Product)).ToList();
-        //}
     }
 }

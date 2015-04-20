@@ -12,6 +12,7 @@ namespace Northwind.DependencyResolver
             builder.RegisterType<DatabaseFactory>().As<IDatabaseFactory>().InstancePerLifetimeScope();
             builder.RegisterType<UnitOfWork>().As<IUnitOfWork>();
             builder.RegisterType<OrderRepository>().As<IRepository<OrderEntity>>();
+            builder.RegisterType<OrderDetailRepository>().As<IRepository<OrderDetailEntity>>();
         }
     }
 }

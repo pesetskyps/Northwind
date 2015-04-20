@@ -12,8 +12,6 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using Autofac;
 using Autofac.Extras.Moq;
-using Effort;
-using Effort.DataLoaders;
 using Northwind.Classes;
 using Northwind.DataLayer.Repositories;
 using Northwind.Exceptions;
@@ -26,6 +24,7 @@ namespace Northwind.Test
     {
         private Mock<IUnitOfWork> _unitOfWork;
         private Mock<IRepository<OrderEntity>> _mockRepository;
+        private Mock<IRepository<OrderDetailEntity>> _mockOrderDetailRepository;
 
         const int _orderId = 11000;
         readonly OrderEntity _complexOrderEntityShippedState = new OrderEntity()
@@ -60,6 +59,7 @@ namespace Northwind.Test
         {
             _unitOfWork = new Mock<IUnitOfWork>();
             _mockRepository = new Mock<IRepository<OrderEntity>>();
+            _mockOrderDetailRepository = new Mock<IRepository<OrderDetailEntity>>();
 
 
         }
@@ -70,7 +70,7 @@ namespace Northwind.Test
             //assemble
             IEnumerable<OrderEntity> mockorder = new List<OrderEntity> { new OrderEntity() { OrderID = 56 } };
             _mockRepository.Setup(x => x.GetAll()).Returns(mockorder);
-            var orderservice = new OrderService(_mockRepository.Object, new DataEntityMapper(), _unitOfWork.Object);
+            var orderservice = new OrderService(_mockRepository.Object, new DataEntityMapper(), _unitOfWork.Object, _mockOrderDetailRepository.Object);
 
             //Act
             var orders = orderservice.GetOrders();
@@ -83,7 +83,7 @@ namespace Northwind.Test
         public void Should_Add_Order()
         {
             //assemble
-            var orderservice = new OrderService(_mockRepository.Object, new DataEntityMapper(), _unitOfWork.Object);
+            var orderservice = new OrderService(_mockRepository.Object, new DataEntityMapper(), _unitOfWork.Object, _mockOrderDetailRepository.Object);
             var order = new Order() { OrderID = 56 };
             //act
             orderservice.AddOrder(order);
@@ -96,7 +96,7 @@ namespace Northwind.Test
         public void Should_Edit_Order_ShipAddress_Attribute()
         {
             //assemble          
-            var orderservice = new OrderService(_mockRepository.Object, new DataEntityMapper(), _unitOfWork.Object);
+            var orderservice = new OrderService(_mockRepository.Object, new DataEntityMapper(), _unitOfWork.Object, _mockOrderDetailRepository.Object);
             _mockRepository.Setup(x => x.GetById(_orderId)).Returns(_complexOrderEntityShippedState);
             var newOrder = new Order() { ShipAddress = "Vitebsk" };
 
@@ -111,7 +111,7 @@ namespace Northwind.Test
         public void Should_Throw_Exception_Editing_OrderDate()
         {
             //assemble
-            var orderservice = new OrderService(_mockRepository.Object, new DataEntityMapper(), _unitOfWork.Object);
+            var orderservice = new OrderService(_mockRepository.Object, new DataEntityMapper(), _unitOfWork.Object, _mockOrderDetailRepository.Object);
             Order newOrder = new Order() { OrderDate = DateTime.Parse("1998-04-06 00:00:00.000") };
 
             //act
@@ -123,7 +123,7 @@ namespace Northwind.Test
         public void Should_Throw_Exception_Editing_ShippedDate()
         {
             //assemble
-            var orderservice = new OrderService(_mockRepository.Object, new DataEntityMapper(), _unitOfWork.Object);
+            var orderservice = new OrderService(_mockRepository.Object, new DataEntityMapper(), _unitOfWork.Object, _mockOrderDetailRepository.Object);
             Order newOrder = new Order() { ShippedDate = DateTime.Parse("1998-04-06 00:00:00.000") };
 
             //act
@@ -135,7 +135,7 @@ namespace Northwind.Test
         public void Should_Throw_Exception_Editing_OrderState()
         {
             //assemble
-            var orderservice = new OrderService(_mockRepository.Object, new DataEntityMapper(), _unitOfWork.Object);
+            var orderservice = new OrderService(_mockRepository.Object, new DataEntityMapper(), _unitOfWork.Object, _mockOrderDetailRepository.Object);
             Order newOrder = new Order() { OrderState = OrderState.Shipped};
 
             //act
@@ -147,7 +147,7 @@ namespace Northwind.Test
         public void Should_Throw_Exception_NewOrder_IsNull()
         {
             //assemble
-            var orderservice = new OrderService(_mockRepository.Object, new DataEntityMapper(), _unitOfWork.Object);
+            var orderservice = new OrderService(_mockRepository.Object, new DataEntityMapper(), _unitOfWork.Object, _mockOrderDetailRepository.Object);
             //act
             orderservice.EditOrder(_orderId, null);
         }
@@ -157,7 +157,7 @@ namespace Northwind.Test
         public void Should_Throw_Exception_onEdit_OrderState_IsNot_In_New_State()
         {
             //assemble
-            var orderservice = new OrderService(_mockRepository.Object, new DataEntityMapper(), _unitOfWork.Object);
+            var orderservice = new OrderService(_mockRepository.Object, new DataEntityMapper(), _unitOfWork.Object, _mockOrderDetailRepository.Object);
             _mockRepository.Setup(x => x.GetById(_orderId)).Returns(_complexOrderEntityShippedState);
             var newOrder = new Order() { ShipAddress = "Vitebsk" };
             //act

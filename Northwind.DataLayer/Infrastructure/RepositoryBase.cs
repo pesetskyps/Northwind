@@ -5,6 +5,7 @@ using System.Text;
 using System.Data.Entity;
 using System.Data;
 using System.Linq.Expressions;
+using LinqKit;
 using Northwind.DataLayer;
 namespace NorthWind.DataLayer.Infrastructure
 {
@@ -39,7 +40,7 @@ namespace NorthWind.DataLayer.Infrastructure
         }
         public virtual void Delete(Expression<Func<T, bool>> where)
         {
-            IEnumerable<T> objects = dbset.Where<T>(where).AsEnumerable();
+            IEnumerable<T> objects = dbset.AsExpandable().Where<T>(where.Compile()).AsEnumerable();
             foreach (T obj in objects)
                 dbset.Remove(obj);
         }
@@ -57,7 +58,8 @@ namespace NorthWind.DataLayer.Infrastructure
         }
         public virtual IEnumerable<T> GetMany(Expression<Func<T, bool>> where)
         {
-            return dbset.Where(where).ToList();
+            //var entities = dbset.ToList();
+            return dbset.AsExpandable().Where<T>(where.Compile()).AsEnumerable();
         }
         public T Get(Expression<Func<T, bool>> where)
         {

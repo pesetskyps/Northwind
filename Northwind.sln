@@ -1,8 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
-MinimumVisualStudioVersion = 10.0.40219.1
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Northwind", "Northwind\Northwind.csproj", "{2D06A767-9036-491A-A177-B0E8A047FE0D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Northwind.DataLayer", "Northwind.DataLayer\Northwind.DataLayer.csproj", "{D25ED2DC-87E3-4893-93FE-08C1EB5179AB}"
