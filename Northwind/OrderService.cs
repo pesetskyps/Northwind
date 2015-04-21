@@ -7,6 +7,7 @@ using System.Text;
 using AutoMapper;
 using Northwind.Classes;
 using Northwind.DataLayer;
+using Northwind.DataLayer.Repositories;
 using Northwind.Exceptions;
 using Northwind.Helpers;
 using NorthwindInterfaces;
@@ -19,13 +20,13 @@ namespace Northwind
     {
         readonly IRepository<OrderEntity> _repository;
         readonly IUnitOfWork _unitOfWork;
-        private readonly IRepository<OrderDetailEntity> _repositoryOrderDetail;
+        private readonly IOrderDetailRepository _repositoryOrderDetail;
 
         public OrderService()
         {
 
         }
-        public OrderService(IRepository<OrderEntity> repository, IDataEntityMapper mapper, IUnitOfWork unitOfWork, IRepository<OrderDetailEntity> repositoryOrderDetail
+        public OrderService(IRepository<OrderEntity> repository, IDataEntityMapper mapper, IUnitOfWork unitOfWork, IOrderDetailRepository repositoryOrderDetail
             )
         {
             _repository = repository;
@@ -80,10 +81,7 @@ namespace Northwind
                     Mapper.Map(newOrderDto, orderToUpdateEntity);
 
                     //delete orderdetails that are not exist in the newOrderDto
-                    var ordersToDelete = _repositoryOrderDetail.GetMany(orderOrm => !enrichedNewOrderDto.Order_Details
-                        .Any(
-                            detailDto =>
-                                detailDto.OrderID == orderOrm.OrderID && detailDto.ProductID == orderOrm.ProductID));
+                    var ordersToDelete = _repositoryOrderDetail.GetOrderDetailsNotInList(enrichedNewOrderDto.Order_Details.ToList());
 
                     foreach (var orderDetail in ordersToDelete)
                     {

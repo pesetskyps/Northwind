@@ -24,7 +24,7 @@ namespace Northwind.Test
     {
         private Mock<IUnitOfWork> _unitOfWork;
         private Mock<IRepository<OrderEntity>> _mockRepository;
-        private Mock<IRepository<OrderDetailEntity>> _mockOrderDetailRepository;
+        private Mock<IOrderDetailRepository> _mockOrderDetailRepository;
 
         const int _orderId = 11000;
         readonly OrderEntity _complexOrderEntityShippedState = new OrderEntity()
@@ -59,7 +59,7 @@ namespace Northwind.Test
         {
             _unitOfWork = new Mock<IUnitOfWork>();
             _mockRepository = new Mock<IRepository<OrderEntity>>();
-            _mockOrderDetailRepository = new Mock<IRepository<OrderDetailEntity>>();
+            _mockOrderDetailRepository = new Mock<IOrderDetailRepository>();
 
 
         }
