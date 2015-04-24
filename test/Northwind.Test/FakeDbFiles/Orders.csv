@@ -1,0 +1,2 @@
+OrderID,CustomerID,EmployeeID,OrderDate,RequiredDate,ShippedDate,ShipVia,Freight,ShipName,ShipAddress,ShipCity,ShipRegion,ShipPostalCode,ShipCountry
+11000,"RATTC",2,,05/04/1998 00:00:00,,3,55.1200,"Rattlesnake Canyon Grocery","2817 Milton Dr.","Albuquerque","NM","87110","USA"
