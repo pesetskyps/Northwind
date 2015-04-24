@@ -72,6 +72,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classes\DataEntityMapper.cs" />
+    <Compile Include="Classes\IOrderEnricher.cs" />
     <Compile Include="Classes\OrderEnricher.cs" />
     <Compile Include="Exceptions\InvalidOrderChangeException.cs" />
     <Compile Include="Helpers\ObjectHelper.cs" />

@@ -27,7 +27,7 @@ namespace Northwind.DataLayer.Repositories
 
             // ReSharper disable once RedundantAssignment
             Expression predicateBody = Expression.Constant(true);
-            ParameterExpression pe = Expression.Parameter(typeof(OrderDetailEntity), "orderDetailOrm");
+            var pe = Expression.Parameter(typeof(OrderDetailEntity), "orderDetailOrm");
 
             var tt = filterList.Select(x => x.OrderID);
             var uniqueOrderId = new HashSet<int>(tt).FirstOrDefault();
@@ -48,7 +48,7 @@ namespace Northwind.DataLayer.Repositories
                 left = Expression.Property(pe, typeof(OrderDetailEntity).GetProperty("ProductID"));
                 right = Expression.Constant(filter.ProductID);
                 Expression e2 = Expression.Equal(left, right);
-                productClauseBody = first == filter ? e2 : Expression.AndAlso(productClauseBody, e2);
+                productClauseBody = first == filter ? e2 : Expression.OrElse(productClauseBody, e2);
             }
             productClauseBody = Expression.Not(productClauseBody);
 
@@ -62,8 +62,8 @@ namespace Northwind.DataLayer.Repositories
                 Expression.Lambda<Func<OrderDetailEntity, bool>>(predicateBody, pe)
                 );
 
-            var results = query.Provider.CreateQuery<OrderDetailEntity>(whereCallExpression);
-            return results.ToList();
+            var results = query.Provider.CreateQuery<OrderDetailEntity>(whereCallExpression).ToList();
+            return results;
         }
     }
 }

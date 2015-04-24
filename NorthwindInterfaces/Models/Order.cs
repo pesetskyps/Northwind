@@ -11,7 +11,7 @@ namespace NorthwindInterfaces.Models
     public class Order
     {
         [DataMember]
-        public int OrderID { get; set; }
+        public Nullable<int> OrderID { get; set; }
         [DataMember]
         public string CustomerID { get; set; }
         [DataMember]

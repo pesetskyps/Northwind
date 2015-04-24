@@ -53,45 +53,43 @@ namespace Northwind
 
         public void EditOrder(int orderId, Order newOrderDto)
         {
-            if (newOrderDto == null)
-            {
-                throw new FaultException<InvalidOrderChangeException>(new InvalidOrderChangeException() { Message = "There are no changes received for the order." });
-            }
-
-            if (orderId == null)
-            {
-                throw new FaultException<InvalidOrderChangeException>(new InvalidOrderChangeException() { Message = "OrderID is empty. Please specify the order to change" });
-            }
+            ValidateEditOrderParameters(orderId, newOrderDto);
             var orderToUpdateEntity = _repository.GetById(orderId);
 
             if (orderToUpdateEntity != null)
             {
                 var enricher = new OrderEnricher<Order>();
                 var order = Mapper.Map<OrderEntity, Order>(orderToUpdateEntity);
+
                 var enrichedOrderToUpdate = enricher.Enrich(order);
                 var enrichedNewOrderDto = enricher.Enrich(newOrderDto);
+
                 if (enrichedNewOrderDto.OrderDate != enrichedOrderToUpdate.OrderDate ||
                     enrichedNewOrderDto.ShippedDate != enrichedOrderToUpdate.ShippedDate ||
                     enrichedNewOrderDto.OrderState != enrichedOrderToUpdate.OrderState)
                 {
-                    throw new FaultException<InvalidOrderChangeException>(new InvalidOrderChangeException() { Message = "OrderID, OrderDate, ShippedDate, OrderState fields couldn't be changed directly" });
+                    throw new FaultException<InvalidOrderChangeException>(
+                        new InvalidOrderChangeException() { Message = "OrderID, OrderDate, ShippedDate, OrderState fields couldn't be changed directly" },
+                        new FaultReason("OrderID, OrderDate, ShippedDate, OrderState fields couldn't be changed directly"));
                 }
-                if (enrichedOrderToUpdate.OrderState == OrderState.Shipped)
+                if (enrichedOrderToUpdate.OrderState == OrderState.New)
                 {
                     Mapper.Map(newOrderDto, orderToUpdateEntity);
 
                     //delete orderdetails that are not exist in the newOrderDto
-                    var ordersToDelete = _repositoryOrderDetail.GetOrderDetailsNotInList(enrichedNewOrderDto.Order_Details.ToList());
+                    var orderDetailsToDelete = _repositoryOrderDetail.GetOrderDetailsNotInList(newOrderDto.Order_Details.ToList());
 
-                    foreach (var orderDetail in ordersToDelete)
+                    foreach (var orderDetail in orderDetailsToDelete)
                     {
                         _repositoryOrderDetail.Delete(orderDetail);
                     }
 
                     //update orderdetail
-                    enrichedNewOrderDto.Order_Details.Each(detailDto =>
+                    newOrderDto.Order_Details.Each(detailDto =>
                     {
                         var detail = _repositoryOrderDetail.Get(d => d.OrderID == detailDto.OrderID && d.ProductID == detailDto.ProductID);
+                        //tt
+                        //detailDto.OrderID = 434343;
                         if (detail == null)
                         {
                             detail = new OrderDetailEntity();
@@ -99,15 +97,6 @@ namespace Northwind
                         }
                         //map first level orderdetail properties
                         Mapper.Map(detailDto, detail);
-
-                        //update product navigation property
-                        var dtoProduct = detailDto.Product;
-                        if (dtoProduct != null)
-                        {
-                            var product = detail.Product ?? new ProductEntity();
-                            //Map products first level p
-                            Mapper.Map(dtoProduct, product);
-                        }
                     });
                     _unitOfWork.Commit();
                 }
@@ -120,6 +109,19 @@ namespace Northwind
             else
             {
                 throw new FaultException<InvalidOrderChangeException>(new InvalidOrderChangeException() { Message = "Order to change was not found in the database" });
+            }
+        }
+
+        private void ValidateEditOrderParameters(int orderId, Order newOrderDto)
+        {
+            if (newOrderDto == null)
+            {
+                throw new FaultException<InvalidOrderChangeException>(new InvalidOrderChangeException() { Message = "There are no changes received for the order." });
+            }
+
+            if (orderId == null)
+            {
+                throw new FaultException<InvalidOrderChangeException>(new InvalidOrderChangeException() { Message = "OrderID is empty. Please specify the order to change" });
             }
         }
     }

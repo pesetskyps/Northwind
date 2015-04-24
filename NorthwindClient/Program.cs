@@ -13,7 +13,7 @@ namespace NorthwindClient
         {
             //ChannelFactory<IService1> servicefactory = new ChannelFactory<IService1>("Service1");
             ChannelFactory<IOrderService> servicefactory = new ChannelFactory<IOrderService>("OrderService");
-            var channel =servicefactory.CreateChannel();
+            var channel = servicefactory.CreateChannel();
             Console.ReadLine();
             //var orders = channel.GetOrders();
             //if (orders != null)
@@ -23,7 +23,7 @@ namespace NorthwindClient
             //        {
             //            Console.WriteLine("Order {0} with state {1} with Product {2} with CategoryID {3}", item.OrderID, item.OrderState, orderDetail.Product.ProductName, orderDetail.Product.CategoryID);
             //        }
-                
+
             //    }
             //Console.WriteLine("Add the order y/n?");
             //string line = Console.ReadLine();
@@ -31,14 +31,14 @@ namespace NorthwindClient
             //{
             //    channel.AddOrder(new Order(){ShipCity="Minsk"});
             //}
-                     Order _complexOrderEntityShippedState = new Order()
+            Order _newOrderComplex = new Order()
         {
             OrderID = 11000,
             CustomerID = "RATTC",
             EmployeeID = 2,
-            OrderDate = DateTime.Parse("1998-04-06 00:00:00.000"),
+            OrderDate = null,
             RequiredDate = DateTime.Parse("1998-05-04 00:00:00.000"),
-            ShippedDate = DateTime.Parse("1998-04-14 00:00:00.000"),
+            ShippedDate = null,
             ShipVia = 3,
             Freight = Decimal.Parse("55.12"),
             ShipName = "Rattlesnake Canyon Grocery",
@@ -49,15 +49,27 @@ namespace NorthwindClient
             ShipCountry = "USA",
             Order_Details = new List<OrderDetail>(){new OrderDetail()
                 {
-                    OrderID = 11000,ProductID = 4, Discount = Convert.ToSingle(0.25), Quantity = 55, UnitPrice = Convert.ToDecimal(22.00),
-                    Product = new Product()
-                    {
-                        ProductID = 4, ProductName = "Chef Anton's Cajun Seasoning", SupplierID = 2, CategoryID = 2, QuantityPerUnit = "48 - 6 oz jars",
-                        UnitPrice = Convert.ToDecimal(22.00), UnitsInStock = 53, UnitsOnOrder = 0, ReorderLevel = 0, Discontinued = false
-                    }
-                }}
+                    OrderID = 11000,ProductID = 4, Discount = Convert.ToSingle(0.25), Quantity = 25, UnitPrice = Convert.ToDecimal(22.00)
+                    //,
+                    //Product = new Product()
+                    //{
+                    //    ProductID = 4, ProductName = "Chef Anton's Cajun Seasoning", SupplierID = 2, CategoryID = 2, QuantityPerUnit = "48 - 6 oz jars",
+                    //    UnitPrice = Convert.ToDecimal(22.00), UnitsInStock = 53, UnitsOnOrder = 0, ReorderLevel = 0, Discontinued = false
+                    //}
+                },
+                new OrderDetail()
+                {
+                    OrderID = 11000,ProductID = 25, Discount = Convert.ToSingle(0.25), Quantity = 25, UnitPrice = Convert.ToDecimal(22.00)
+                    //,
+                    //Product = new Product()
+                    //{
+                    //    ProductID = 25, ProductName = "bla", SupplierID = 2, CategoryID = 2, QuantityPerUnit = "48 - 6 oz jars",
+                    //    UnitPrice = Convert.ToDecimal(22.00), UnitsInStock = 53, UnitsOnOrder = 0, ReorderLevel = 0, Discontinued = false
+                    //}
+                },
+            }
         };
-                     channel.EditOrder(11000, _complexOrderEntityShippedState);
+            channel.EditOrder(11000, _newOrderComplex);
 
             Console.ReadLine();
         }

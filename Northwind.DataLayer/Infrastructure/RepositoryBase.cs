@@ -44,13 +44,15 @@ namespace NorthWind.DataLayer.Infrastructure
             foreach (T obj in objects)
                 dbset.Remove(obj);
         }
-        public virtual T GetById(long id)
+        public virtual T GetById(int id)
         {
-            return dbset.Find(id);
+            var result = dbset.Find(id);
+            return result;
         }
         public virtual T GetById(string id)
         {
-            return dbset.Find(id);
+            var result = dbset.Find(id);
+            return result;
         }
         public virtual IEnumerable<T> GetAll()
         {

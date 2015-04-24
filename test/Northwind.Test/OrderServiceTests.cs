@@ -16,6 +16,7 @@ using Northwind.Classes;
 using Northwind.DataLayer.Repositories;
 using Northwind.Exceptions;
 using System.ServiceModel;
+using Effort.DataLoaders;
 
 namespace Northwind.Test
 {
@@ -60,10 +61,8 @@ namespace Northwind.Test
             _unitOfWork = new Mock<IUnitOfWork>();
             _mockRepository = new Mock<IRepository<OrderEntity>>();
             _mockOrderDetailRepository = new Mock<IOrderDetailRepository>();
-
-
         }
-
+        
         [TestMethod]
         public void GetOrders_Should_Return_Order()
         {
@@ -92,29 +91,14 @@ namespace Northwind.Test
             _mockRepository.Verify(lw => lw.Add(It.IsAny<OrderEntity>()), Times.Once());
         }
 
-        [TestMethod]
-        public void Should_Edit_Order_ShipAddress_Attribute()
-        {
-            //assemble          
-            var orderservice = new OrderService(_mockRepository.Object, new DataEntityMapper(), _unitOfWork.Object, _mockOrderDetailRepository.Object);
-            _mockRepository.Setup(x => x.GetById(_orderId)).Returns(_complexOrderEntityShippedState);
-            var newOrder = new Order() { ShipAddress = "Vitebsk" };
-
-            //act
-            orderservice.EditOrder(_orderId, newOrder);
-            //assert
-            _unitOfWork.Verify(lw => lw.Commit(), Times.Once());
-        }
-
         [ExpectedException(typeof(FaultException<InvalidOrderChangeException>))]
         [TestMethod]
         public void Should_Throw_Exception_Editing_OrderDate()
         {
             //assemble
+            
+            var newOrder = new Order() { OrderDate = DateTime.Parse("1998-04-06 00:00:00.000") };
             var orderservice = new OrderService(_mockRepository.Object, new DataEntityMapper(), _unitOfWork.Object, _mockOrderDetailRepository.Object);
-            Order newOrder = new Order() { OrderDate = DateTime.Parse("1998-04-06 00:00:00.000") };
-
-            //act
             orderservice.EditOrder(_orderId, newOrder);
         }
 

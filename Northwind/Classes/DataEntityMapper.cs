@@ -29,7 +29,6 @@ namespace Northwind.Classes
             Mapper.CreateMap<OrderDetail, OrderDetailEntity>()
                 .ForMember(dest => dest.Product, mo => mo.Ignore())
                 .ForMember(dest => dest.Order, mo => mo.Ignore())
-                .ForMember(dest => dest.OrderID, mo => mo.Ignore())
                 .ForAllMembers(opt => opt.Condition(srs => !srs.IsSourceValueNull));
 
 
