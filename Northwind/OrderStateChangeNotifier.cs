@@ -9,20 +9,44 @@ using NorthwindInterfaces.Exceptions;
 
 namespace Northwind
 {
-    class OrderStateChangeNotifier : IOrderStateChangeNotifierService
+    [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Multiple)]
+    public class OrderStateChangeNotifier : IOrderStateChangeNotifierService
     {
-        static List<IOrderStateChangeCallback> mCallbacks = new List<IOrderStateChangeCallback>();
+        static Dictionary<int, List<IOrderStateChangeCallback>> callbacksDict = new Dictionary<int, List<IOrderStateChangeCallback>>();
 
-        public void SubcribeToOrderStateChange(string message)
+        public void SubcribeToOrderStateChange(int orderId)
         {
             Console.WriteLine("> Session opened at {0}", DateTime.Now);
-            IOrderStateChangeCallback callback = OperationContext.Current.GetCallbackChannel<IOrderStateChangeCallback>();
-            if (!mCallbacks.Contains(callback))
+            IOrderStateChangeCallback callback =
+                OperationContext.Current.GetCallbackChannel<IOrderStateChangeCallback>();
+            if (!callbacksDict.ContainsKey(orderId))
             {
-                mCallbacks.Add(callback);
+                callbacksDict.Add(orderId, new List<IOrderStateChangeCallback> { callback });
             }
+            else
+            {
+                List<IOrderStateChangeCallback> callbacks;
+                if (callbacksDict.TryGetValue(orderId, out callbacks))
+                {
+                    if (!callbacks.Contains(callback))
+                    {
+                        callbacks.Add(callback);
+                        callbacksDict[orderId] = callbacks;
+                    }
+                }
+            }
+        }
 
-            mCallbacks.ForEach(t => t.OnOrderStateChange(message));
+        public void SendOrderStateChange(int orderId)
+        {
+            List<IOrderStateChangeCallback> callbacks;
+            if (callbacksDict.TryGetValue(orderId, out callbacks))
+            {
+                foreach (var callback in callbacks)
+                {
+                    callback.OnOrderStateChange(string.Format("Order state changed for the order {0}", orderId));
+                }
+            }
         }
     }
 }

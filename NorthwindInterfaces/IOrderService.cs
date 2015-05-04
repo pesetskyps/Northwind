@@ -25,5 +25,9 @@ namespace NorthwindInterfaces
         [OperationContract]
         [FaultContract(typeof(InvalidOrderChangeException))]
         void DeleteOrder(Order newOrderDto);
+
+        [OperationContract]
+        [FaultContract(typeof (InvalidOrderChangeException))]
+        void MoveOrderToState(OrderState newState, Order order);
     }
 }

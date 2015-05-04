@@ -9,6 +9,7 @@ using AutoMapper;
 using Northwind.Classes;
 using Northwind.DataLayer;
 using Northwind.DataLayer.Repositories;
+using Northwind.Helpers;
 using Northwind.Infrastructure;
 using NorthwindInterfaces;
 using NorthwindInterfaces.Exceptions;
@@ -24,6 +25,7 @@ namespace Northwind
         readonly IUnitOfWork _unitOfWork;
         private readonly IOrderDetailRepository _repositoryOrderDetail;
         private IClock _clock;
+        private IOrderStateChangeNotifierService orderStateChangeNotifierServiceChannel;
 
         public OrderService()
         {
@@ -37,6 +39,9 @@ namespace Northwind
             _repositoryOrderDetail = repositoryOrderDetail;
             _unitOfWork = unitOfWork;
             _clock = clock;
+
+            var servicefactory = new DuplexChannelFactory<IOrderStateChangeNotifierService>("OrderStateChangeNotifierService");
+            orderStateChangeNotifierServiceChannel = servicefactory.CreateChannel();
             mapper.CreateMap();
         }
         public IEnumerable<Order> GetOrders()
@@ -166,6 +171,7 @@ namespace Northwind
             }
 
             CommitOrderEdit("Error occured during OrderEdit. Please see server logs for details");
+            orderStateChangeNotifierServiceChannel.SendOrderStateChange(order.OrderID);
         }
 
         private void CommitOrderEdit(string exceptionMessage)

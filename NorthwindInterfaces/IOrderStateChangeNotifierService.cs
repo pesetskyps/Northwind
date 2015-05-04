@@ -11,6 +11,9 @@ namespace NorthwindInterfaces
     public interface IOrderStateChangeNotifierService
     {
         [OperationContract]
-        void SubcribeToOrderStateChange(string message);
+        void SubcribeToOrderStateChange(int orderId);
+
+        [OperationContract]
+        void SendOrderStateChange(int orderId);
     }
 }

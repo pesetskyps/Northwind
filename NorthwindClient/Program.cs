@@ -13,7 +13,8 @@ namespace NorthwindClient
         static void Main()
         {
             //ChannelFactory<IService1> servicefactory = new ChannelFactory<IService1>("Service1");
-            var servicefactory = new ChannelFactory<IOrderService>("OrderService");
+            var binding = new WSDualHttpBinding();
+            var servicefactory = new ChannelFactory<IOrderService>(binding,"OrderService");
             var channel = servicefactory.CreateChannel();
             Console.ReadLine();
             //var orders = channel.GetOrders();
@@ -62,7 +63,7 @@ namespace NorthwindClient
             };
             try
             {
-                channel.DeleteOrder(newOrderComplex);
+                channel.MoveOrderToState(OrderState.InWork, newOrderComplex);
             }
             catch (FaultException<InvalidOrderChangeException> ex)
             {
