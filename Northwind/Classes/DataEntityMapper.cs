@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Northwind.DataLayer;
+using Northwind.Resolvers;
 using NorthwindInterfaces.Models;
 
 namespace Northwind.Classes
@@ -12,11 +13,12 @@ namespace Northwind.Classes
     {
         public void CreateMap()
         {
-            Mapper.CreateMap<OrderEntity, Order>();
+            Mapper.CreateMap<OrderEntity, Order>()
+                .ForMember(dest => dest.OrderState, opt => opt.ResolveUsing<OrderStateResolver>());
             Mapper.CreateMap<ProductEntity, Product>();
             Mapper.CreateMap<OrderDetailEntity, OrderDetail>();
             Mapper.CreateMap<CustomerEntity, Customer>();
-            
+
             //ORM to DB
             Mapper.CreateMap<Order, OrderEntity>()
                 .ForMember(dest => dest.Order_Details, mo => mo.Ignore())

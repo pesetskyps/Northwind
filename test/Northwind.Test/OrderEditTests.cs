@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
+using System.ServiceModel;
 using Effort.DataLoaders;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Northwind.Classes;
 using Northwind.DataLayer;
 using Northwind.DataLayer.Repositories;
+using Northwind.Infrastructure;
+using NorthwindInterfaces.Exceptions;
 using NorthwindInterfaces.Models;
 using NorthWind.DataLayer.Infrastructure;
 
@@ -17,12 +20,13 @@ namespace Northwind.Test
     public class OrderEditTests
     {
         const int OrderId = 11000;
-
+        private DateTime now = DateTime.Parse("2015-05-04 00:00:00.000");
         readonly Order _newOrderComplex = new Order()
         {
             OrderID = OrderId,
             CustomerID = "RATTC",
             EmployeeID = 2,
+            OrderState = OrderState.New,
             OrderDate = null,
             RequiredDate = DateTime.Parse("1998-05-04 00:00:00.000"),
             ShippedDate = null,
@@ -53,20 +57,23 @@ namespace Northwind.Test
         private UnitOfWork _realUnitOfWork;
         private OrderRepository _realOrderRepository;
         private OrderDetailRepository _realOrderDetailRepository;
+        private Mock<IClock> _clock;
 
         [TestInitialize()]
         public void Initialize()
         {
             //Init Effort database
             IDataLoader loader = new CsvDataLoader(@"d:\Repository\Northwind\test\Northwind.Test\FakeDbFiles");
-            DbConnection connection = Effort.EntityConnectionFactory.CreatePersistent("name=NorthwindData", loader) as DbConnection;
-            var dbcontext = new NorthwindData(connection);
+            var dbconnection = Effort.EntityConnectionFactory.CreateTransient("name=NorthwindData", loader) as DbConnection;
+            var dbcontext = new NorthwindData(dbconnection);
             var dbFactory = new Mock<IDatabaseFactory>();
             dbFactory.Setup(x => x.Get()).Returns(dbcontext);
             //init repos and unit of work
             _realUnitOfWork = new UnitOfWork(dbFactory.Object);
             _realOrderRepository = new OrderRepository(dbFactory.Object);
             _realOrderDetailRepository = new OrderDetailRepository(dbFactory.Object);
+            _clock = new Mock<IClock>();
+            _clock.Setup(x => x.Now).Returns(now);
         }
 
         [TestMethod]
@@ -74,7 +81,7 @@ namespace Northwind.Test
         {
             //assemble
             var orderservice = new OrderService(_realOrderRepository, new DataEntityMapper(),
-               _realUnitOfWork, _realOrderDetailRepository);
+               _realUnitOfWork, _realOrderDetailRepository, _clock.Object);
             var neworder = _newOrderComplex;
             const string newCountry = "Belarus";
             //act
@@ -88,7 +95,7 @@ namespace Northwind.Test
         {
             //assemble
             var orderservice = new OrderService(_realOrderRepository, new DataEntityMapper(),
-               _realUnitOfWork, _realOrderDetailRepository);
+               _realUnitOfWork, _realOrderDetailRepository, _clock.Object);
             var neworder = _newOrderComplex;
             neworder.Order_Details.Remove(neworder.Order_Details.First());
             //act
@@ -105,7 +112,7 @@ namespace Northwind.Test
         {
             //assemble
             var orderservice = new OrderService(_realOrderRepository, new DataEntityMapper(),
-               _realUnitOfWork, _realOrderDetailRepository);
+               _realUnitOfWork, _realOrderDetailRepository, _clock.Object);
             var neworder = _newOrderComplex;
             neworder.Order_Details.Add(new OrderDetail
             {
@@ -127,13 +134,81 @@ namespace Northwind.Test
         [TestMethod]
         public void Should_Add_Order()
         {
+            //assemble
             var orderservice = new OrderService(_realOrderRepository, new DataEntityMapper(),
-                          _realUnitOfWork, _realOrderDetailRepository);
+                          _realUnitOfWork, _realOrderDetailRepository, _clock.Object);
             var neworder = _newOrderComplex;
-            neworder.OrderID = null; // will be set by EF as it is PK
+            //neworder.OrderID = null; // will be set by EF as it is PK
+            //act
+            var rsd = _realOrderRepository.GetAll().Count();
             orderservice.AddOrder(neworder);
+            
+            //assert
             var count = orderservice.GetOrders().Count();
             Assert.AreEqual(2, count);
+        }
+
+        [TestMethod]
+        public void Should_Delete_Order()
+        {
+            //assemble
+            var orderservice = new OrderService(_realOrderRepository, new DataEntityMapper(),
+                          _realUnitOfWork, _realOrderDetailRepository, _clock.Object);
+            var orderToDelete = _newOrderComplex;
+            //act
+            orderservice.DeleteOrder(orderToDelete);
+            var orders = orderservice.GetOrders();
+            //assert
+            Assert.AreEqual(0, orders.Count());
+        }
+        
+        [TestMethod]
+        public void Should_Move_State_Modified_OrderDate()
+        {
+            //assemble
+            var orderservice = new OrderService(_realOrderRepository, new DataEntityMapper(),
+                          _realUnitOfWork, _realOrderDetailRepository, _clock.Object);
+            var order = _newOrderComplex;
+            //act
+            orderservice.MoveOrderToState(OrderState.InWork, order);
+            //assert
+            var modifiedOrder = _realOrderRepository.GetById(order.OrderID);
+
+            Assert.AreEqual(now, modifiedOrder.OrderDate);
+        }
+
+        [TestMethod]
+        public void Should_Move_State_Modified_ShippedDate()
+        {
+            //assemble
+            var orderservice = new OrderService(_realOrderRepository, new DataEntityMapper(),
+                          _realUnitOfWork, _realOrderDetailRepository, _clock.Object);
+            var order = _newOrderComplex;
+            order.OrderDate = now.AddDays(-1);
+            order.OrderState = OrderState.InWork;
+            //act
+            orderservice.MoveOrderToState(OrderState.Shipped, order);
+            //assert
+            var modifiedOrder = _realOrderRepository.GetById(order.OrderID);
+
+            Assert.AreEqual(now, modifiedOrder.ShippedDate);
+        }
+
+        [ExpectedException(typeof(FaultException<InvalidOrderChangeException>))]
+        [TestMethod]
+        public void Should_Throw_Modifying_State_From_New_To_Shipped()
+        {
+            //assemble
+            var orderservice = new OrderService(_realOrderRepository, new DataEntityMapper(),
+                          _realUnitOfWork, _realOrderDetailRepository, _clock.Object);
+            var order = _newOrderComplex;
+
+            //act
+            orderservice.MoveOrderToState(OrderState.Shipped, order);
+            //assert
+            var modifiedOrder = _realOrderRepository.GetById(order.OrderID);
+
+            Assert.AreEqual(now, modifiedOrder.ShippedDate);
         }
     }
 }

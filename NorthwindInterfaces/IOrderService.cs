@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ServiceModel;
 using System.ServiceModel.Web;
+using NorthwindInterfaces.Exceptions;
 
 namespace NorthwindInterfaces
 {
@@ -18,6 +19,11 @@ namespace NorthwindInterfaces
 
         [WebGet]
         [OperationContract]
+        [FaultContract(typeof(InvalidOrderChangeException))]
         void EditOrder(int orderId, Order newOrderDto);
+
+        [OperationContract]
+        [FaultContract(typeof(InvalidOrderChangeException))]
+        void DeleteOrder(Order newOrderDto);
     }
 }

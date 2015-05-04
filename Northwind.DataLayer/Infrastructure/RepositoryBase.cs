@@ -5,18 +5,19 @@ using System.Text;
 using System.Data.Entity;
 using System.Data;
 using System.Linq.Expressions;
+using System.ServiceModel;
 using LinqKit;
 using Northwind.DataLayer;
 namespace NorthWind.DataLayer.Infrastructure
 {
     public abstract class RepositoryBase<T> : IRepository<T> where T : class
     {
-        private NorthwindData dataContext;
-        private readonly IDbSet<T> dbset;
+        private NorthwindData _dataContext;
+        private readonly IDbSet<T> _dbset;
         protected RepositoryBase(IDatabaseFactory databaseFactory)
         {
             DatabaseFactory = databaseFactory;
-            dbset = DataContext.Set<T>();
+            _dbset = DataContext.Set<T>();
         }
 
         protected IDatabaseFactory DatabaseFactory
@@ -27,45 +28,62 @@ namespace NorthWind.DataLayer.Infrastructure
 
         protected NorthwindData DataContext
         {
-            get { return dataContext ?? (dataContext = DatabaseFactory.Get()); }
+            get { return _dataContext ?? (_dataContext = DatabaseFactory.Get()); }
         }
         public virtual void Add(T entity)
         {
-            dbset.Add(entity);
+            if (entity == null)
+                throw new ArgumentNullException("entity");
+
+            _dbset.Add(entity);
+
         }
 
         public virtual void Delete(T entity)
         {
-            dbset.Remove(entity);
+            if (entity == null)
+                throw new ArgumentNullException("entity");
+
+            _dbset.Remove(entity);
+
         }
         public virtual void Delete(Expression<Func<T, bool>> where)
         {
-            IEnumerable<T> objects = dbset.AsExpandable().Where<T>(where.Compile()).AsEnumerable();
+
+            IEnumerable<T> objects = _dbset.Where(where).AsEnumerable();
             foreach (T obj in objects)
-                dbset.Remove(obj);
+                _dbset.Remove(obj);
+
         }
         public virtual T GetById(int id)
         {
-            var result = dbset.Find(id);
+            if (id == null)
+                throw new ArgumentNullException("id");
+            T result;
+
+            result = _dbset.Find(id);
+
             return result;
         }
         public virtual T GetById(string id)
         {
-            var result = dbset.Find(id);
+            if (id == null)
+                throw new ArgumentNullException("id");
+            var result = _dbset.Find(id);
             return result;
         }
         public virtual IEnumerable<T> GetAll()
         {
-            return dbset.ToList();
+            return _dbset.ToList();
         }
         public virtual IEnumerable<T> GetMany(Expression<Func<T, bool>> where)
         {
             //var entities = dbset.ToList();
-            return dbset.AsExpandable().Where<T>(where.Compile()).AsEnumerable();
+            return _dbset.AsExpandable().Where<T>(where.Compile()).AsEnumerable();
         }
         public T Get(Expression<Func<T, bool>> where)
         {
-            return dbset.Where(where).FirstOrDefault<T>();
+            return _dbset.Where(where).FirstOrDefault<T>();
         }
     }
 }

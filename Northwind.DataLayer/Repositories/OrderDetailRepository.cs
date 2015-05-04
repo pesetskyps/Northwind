@@ -10,6 +10,7 @@ namespace Northwind.DataLayer.Repositories
     public interface IOrderDetailRepository : IRepository<OrderDetailEntity>
     {
         IEnumerable<OrderDetailEntity> GetOrderDetailsNotInList(List<OrderDetail> filterList);
+        void DeleteOrderDetailsNotInList(List<OrderDetail> filterList);
     }
 
     public class OrderDetailRepository : RepositoryBase<OrderDetailEntity>, IOrderDetailRepository
@@ -65,5 +66,16 @@ namespace Northwind.DataLayer.Repositories
             var results = query.Provider.CreateQuery<OrderDetailEntity>(whereCallExpression).ToList();
             return results;
         }
+
+        public void DeleteOrderDetailsNotInList(List<OrderDetail> filterList)
+        {
+            var orderDetailsToDelete = GetOrderDetailsNotInList(filterList);
+
+            foreach (var orderDetail in orderDetailsToDelete)
+            {
+                this.Delete(orderDetail);
+            }
+        }
+        
     }
 }

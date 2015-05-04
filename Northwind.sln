@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Northwind", "Northwind\Northwind.csproj", "{2D06A767-9036-491A-A177-B0E8A047FE0D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Northwind.DataLayer", "Northwind.DataLayer\Northwind.DataLayer.csproj", "{D25ED2DC-87E3-4893-93FE-08C1EB5179AB}"
@@ -14,8 +16,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NorthwindInterfaces", "NorthwindInterfaces\NorthwindInterfaces.csproj", "{629826FA-9FCF-4AD9-A8B8-211FF8406EDE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Northwind.Test", "test\Northwind.Test\Northwind.Test.csproj", "{8CDE315B-7859-4E5C-86F6-C29E79CFCAE4}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NorthwindService.Test", "NorthwindService.Test\NorthwindService.Test.csproj", "{0A70EEFB-B2A3-40B9-A6DA-2A322ECCC4A6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,10 +51,6 @@ Global
 		{8CDE315B-7859-4E5C-86F6-C29E79CFCAE4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8CDE315B-7859-4E5C-86F6-C29E79CFCAE4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8CDE315B-7859-4E5C-86F6-C29E79CFCAE4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0A70EEFB-B2A3-40B9-A6DA-2A322ECCC4A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0A70EEFB-B2A3-40B9-A6DA-2A322ECCC4A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0A70EEFB-B2A3-40B9-A6DA-2A322ECCC4A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0A70EEFB-B2A3-40B9-A6DA-2A322ECCC4A6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

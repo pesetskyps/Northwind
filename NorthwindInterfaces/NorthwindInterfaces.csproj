@@ -57,7 +57,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Exceptions\InvalidOrderChangeException.cs" />
     <Compile Include="IOrderService.cs" />
+    <Compile Include="IOrderStateChangeCallback.cs" />
+    <Compile Include="IOrderStateChangeNotifierService.cs" />
     <Compile Include="Models\Customer.cs" />
     <Compile Include="Models\Order.cs" />
     <Compile Include="Models\OrderDetail.cs" />

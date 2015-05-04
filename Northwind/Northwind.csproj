@@ -58,6 +58,9 @@
     <Reference Include="EntityFramework.SqlServer">
       <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
+    <Reference Include="log4net">
+      <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -72,12 +75,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classes\DataEntityMapper.cs" />
-    <Compile Include="Classes\IOrderEnricher.cs" />
-    <Compile Include="Classes\OrderEnricher.cs" />
-    <Compile Include="Exceptions\InvalidOrderChangeException.cs" />
     <Compile Include="Helpers\ObjectHelper.cs" />
+    <Compile Include="Infrastructure\GlobalExceptionHandler.cs" />
+    <Compile Include="Infrastructure\GlobalExceptionHandlerBehaviourAttribute.cs" />
+    <Compile Include="Infrastructure\IClock.cs" />
+    <Compile Include="Infrastructure\Logger.cs" />
+    <Compile Include="Infrastructure\SystemClock.cs" />
     <Compile Include="OrderService.cs" />
+    <Compile Include="OrderStateChangeNotifier.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Resolvers\OrderStateResolver.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -95,6 +102,7 @@
       <Name>NorthwindInterfaces</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <VSToolsPath Condition="'$(VSToolsPath)' == '' and '$(VisualStudioVersion)' != '' and '$(VisualStudioVersion)' != '11.0'">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

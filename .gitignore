@@ -205,3 +205,9 @@ FakesAssemblies/
 
 # Visual Studio 6 workspace options file
 *.opt
+/NorthwindService/logs
+/packages/Autofac.Extras.Moq.3.0.2
+/packages/Effort.EF6.1.1.4
+/packages/LinqKit.1.1.2
+/packages/log4net.2.0.3
+/packages/NMemory.1.0.1
