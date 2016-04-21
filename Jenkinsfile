@@ -1,4 +1,4 @@
-node {
+node('remote') {
    // Mark the code checkout 'stage'....
    stage 'Checkout'
 
